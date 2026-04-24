@@ -144,6 +144,10 @@ WPF testbed for validating dual-buffer seamless video switching, zoom/pan, overl
 - toggle use of a dual buffer to show smooth video transitions when opening/switching to a new video
 -***Illustrates how we use two video players to avoid the visually annoying 'black screen' that occurs when a video is opened or switched***
 
+###Hardware accelerated
+- Try to use D3D11VA hardware-accelerated decoding; falls back silently to software if the GPU or codec doesn't support it. Reloads the current video immediately so the change takes effect. The status bar shows whether hardware or software decode is active.
+- ***Illustrates how to enable hardware acceleration in FFME and detect whether it is actually in use***
+
 ###Speed
 -change the video speed
 -***illustrates how to change the speed of the runnnig video***

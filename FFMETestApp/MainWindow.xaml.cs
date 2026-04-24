@@ -37,6 +37,8 @@ public partial class MainWindow : Window
     private double _positionPct = 0.0;
     private double _positionSeconds = 0.0;
     private bool _isCleaningUp = false;
+    private bool _useHardwareAccel = false;
+    private bool _hwDecodeChecked = false;
 
     // Dual-buffer: tracks which MediaElement is currently the visible/active one.
     // true = VideoPlayer is active; false = VideoPlayer2 is active.
@@ -97,9 +99,11 @@ public partial class MainWindow : Window
         // UseLegacyAudioOut prevents a DirectSound COM RCW crash on rapid open/close cycles.
         VideoPlayer.RendererOptions.UseLegacyAudioOut = true;
         VideoPlayer.MediaFailed += VideoPlayer_MediaFailed;
+        VideoPlayer.MediaOpening += VideoPlayer_MediaOpening;
 
         VideoPlayer2.RendererOptions.UseLegacyAudioOut = true;
         VideoPlayer2.MediaFailed += VideoPlayer_MediaFailed;
+        VideoPlayer2.MediaOpening += VideoPlayer_MediaOpening;
 
         // Set up a combined scale + translate transform so zoom and pan work together.
         // Both players get their own TransformGroup (WPF Freezables can't be shared across
@@ -427,7 +431,24 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region FFME Event Handlers — MediaOpened, MediaFailed, PositionChanged, MediaEnded
+    #region FFME Event Handlers — MediaOpening, MediaOpened, MediaFailed, PositionChanged, MediaEnded
+
+    // Apply hardware acceleration setting just before FFME opens the file.
+    // MediaOpening fires on FFME's background thread, so we read _useHardwareAccel (a plain bool)
+    // rather than touching HardwareAccelCheckBox.IsChecked (a UI property).
+    // When hardware is wanted, pass the stream's own HardwareDevices list so FFME picks the
+    // best available accelerator (typically D3D11VA on Windows).
+    // When hardware is off, leave VideoHardwareDevices at its default (null = software decode).
+    private void VideoPlayer_MediaOpening(object? sender, Unosquare.FFME.Common.MediaOpeningEventArgs e)
+    {
+        if (!_useHardwareAccel) return;
+
+        var videoStream = e.Info?.Streams?.Values.FirstOrDefault(s => s.PixelWidth > 0);
+        var hwDevices = videoStream?.HardwareDevices?.ToArray();
+        if (hwDevices != null && hwDevices.Length > 0)
+            e.Options.VideoHardwareDevices = hwDevices;
+    }
+
 
     // Update UI when a video finishes opening. Ignored for the back-buffer player.
     private void VideoPlayer_MediaOpened(object sender, Unosquare.FFME.Common.MediaOpenedEventArgs e)
@@ -447,6 +468,10 @@ public partial class MainWindow : Window
                 _videoFrameRate = videoStream.FPS;
             }
             FrameRateText.Text = $"FPS: {_videoFrameRate:F2}";
+            // VideoHardwareDecoder is only populated after the first frame decodes, not at open time.
+            // Reset the flag so PositionChanged will pick it up on the first frame.
+            _hwDecodeChecked = false;
+            HwAccelText.Text = "Decode: Detecting...";
             var duration = ActivePlayer.NaturalDuration ?? TimeSpan.Zero;
             PositionText.Text = $"00:00:00 / {duration:hh\\:mm\\:ss}";
             UpdatePlayPauseIcon(ActivePlayer.IsPlaying);
@@ -474,6 +499,18 @@ public partial class MainWindow : Window
             if (_isUserDraggingSlider)
             {
                 return;
+            }
+
+            // VideoHardwareDecoder is only set after the first frame decodes. Do one read here
+            // and stop checking once we have a definitive answer.
+            if (!_hwDecodeChecked)
+            {
+                string hwName = ActivePlayer.VideoHardwareDecoder;
+                if (hwName != null)
+                {
+                    HwAccelText.Text = string.IsNullOrEmpty(hwName) ? "Decode: Software" : $"Decode: {hwName}";
+                    _hwDecodeChecked = true;
+                }
             }
 
             var position = e.Position;
@@ -903,6 +940,20 @@ public partial class MainWindow : Window
         if (SliderAutoSwitchTimeLabel != null)
         {
             SliderAutoSwitchTimeLabel.Text = $"{e.NewValue:F2}s";
+        }
+    }
+    #endregion
+
+    #region Video Controls - Hardware acceleration
+    // Reload the current video so the new hardware acceleration setting takes effect immediately.
+    private async void HardwareAccelCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        _useHardwareAccel = HardwareAccelCheckBox.IsChecked == true;
+        if (ActivePlayer.Source != null)
+        {
+            string current = ActivePlayer.Source.LocalPath;
+            await LoadVideo(current, silent: true);
+            await ActivePlayer.Play();
         }
     }
     #endregion

@@ -67,6 +67,10 @@
             <CheckBox x:Name="UseDualBufferCheckBox" Content="Dual-buffer" Margin="0,0,6,0"
                       VerticalAlignment="Center" IsChecked="True"
                       ToolTip="Toggle use of a dual buffer to show smooth video transitions when opening/switching to a new video&#10;Illustrates how we use two video players to avoid the visually annoying 'black screen' that occurs when a video is opened or switched"/>
+            <CheckBox x:Name="HardwareAccelCheckBox" Content="Hardware accelerated" Margin="0,0,6,0"
+                      VerticalAlignment="Center" IsChecked="False"
+                      Checked="HardwareAccelCheckBox_Changed" Unchecked="HardwareAccelCheckBox_Changed"
+                      ToolTip="Try to use hardware acceleration."/>
 
             <!-- Speed -->
             <TextBlock Text="Speed:" VerticalAlignment="Center" Margin="2,0,2,0"/>
@@ -210,6 +214,8 @@
             <TextBlock x:Name="ResolutionText" Text="Resolution: N/A" Margin="20,10" VerticalAlignment="Center"
                        ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
             <TextBlock x:Name="FrameRateText" Text="FPS: N/A" Margin="20,10" VerticalAlignment="Center"
+                       ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
+            <TextBlock x:Name="HwAccelText" Text="Decode: Software" Margin="20,10" VerticalAlignment="Center"
                        ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
         </StackPanel>
     </Grid>

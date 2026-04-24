@@ -20,3 +20,5 @@ FFMETestApp/bin/Debug/net10.0-windows/ffmpegbin/swscale-9.dll
 FFMETestApp/obj/FFMETestApp.csproj.nuget.dgspec.json
 FFMETestApp/obj/
 Context.md
+FFMEvsMediaElementTradeoff.md
+Videos/GitIgnored-4K30fps.mp4
