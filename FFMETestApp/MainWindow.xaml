@@ -71,6 +71,10 @@
                       VerticalAlignment="Center" IsChecked="False"
                       Checked="HardwareAccelCheckBox_Changed" Unchecked="HardwareAccelCheckBox_Changed"
                       ToolTip="Try to use hardware acceleration."/>
+            <CheckBox x:Name="UseDirectSoundCheckBox" Content="Use direct sound" Margin="0,0,6,0"
+                      VerticalAlignment="Center" IsChecked="True"
+                      Checked="UseDirectSoundCheckBox_Changed" Unchecked="UseDirectSoundCheckBox_Changed"
+                      ToolTip="Indicates whether to use DirectSound or the legacy WinMM audio engine.&#10;Useful for testing a previous bug in DirectSound that caused crashes when switching between videos"/>
 
             <!-- Speed -->
             <TextBlock Text="Speed:" VerticalAlignment="Center" Margin="2,0,2,0"/>
@@ -208,7 +212,6 @@
         <!-- Status Panel -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10" Background="LightGray">
             <TextBlock x:Name="StatusText" Text="Ready" Margin="10" VerticalAlignment="Center"/>
-            <TextBlock x:Name="FileNameText" Text="" Margin="20,10" VerticalAlignment="Center" FontWeight="Bold"/>
             <TextBlock x:Name="PositionText" Text="00:00:00 / 00:00:00" Margin="20,10" VerticalAlignment="Center"
                        ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
             <TextBlock x:Name="ResolutionText" Text="Resolution: N/A" Margin="20,10" VerticalAlignment="Center"
@@ -217,6 +220,10 @@
                        ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
             <TextBlock x:Name="HwAccelText" Text="Decode: Software" Margin="20,10" VerticalAlignment="Center"
                        ToolTip="Illustrates how to get video information, such as its position, resolution, and frames per second."/>
+            <TextBlock x:Name="AudioEngineText" Text="Audio: N/A | WinMM" Margin="20,10" VerticalAlignment="Center"
+                       ToolTip="Audio codec of the loaded video and the audio output engine in use (DirectSound or WinMM legacy)."/>
+            <TextBlock x:Name="FfmeVersionText" Text="FFME: ..." Margin="20,10" VerticalAlignment="Center"
+                       ToolTip="Version of the zgabi.FFME.Windows assembly loaded at runtime."/>
         </StackPanel>
     </Grid>
 </Window>

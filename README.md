@@ -148,6 +148,10 @@ WPF testbed for validating dual-buffer seamless video switching, zoom/pan, overl
 - Try to use D3D11VA hardware-accelerated decoding; falls back silently to software if the GPU or codec doesn't support it. Reloads the current video immediately so the change takes effect. The status bar shows whether hardware or software decode is active.
 - ***Illustrates how to enable hardware acceleration in FFME and detect whether it is actually in use***
 
+###Use direct sound
+- Switches the audio output engine between DirectSound (checked, default) and the legacy WinMM renderer (unchecked). Reloads the current video immediately so the change takes effect. The status bar shows the active audio codec and engine.
+- ***Illustrates the two audio renderers available in FFME and reproduces the DirectSound COM RCW finalizer-thread crash that occurs with rapid video switching when UseLegacyAudioOut is false (see github.com/unosquare/ffmediaelement/issues/683)***
+
 ###Speed
 -change the video speed
 -***illustrates how to change the speed of the runnnig video***

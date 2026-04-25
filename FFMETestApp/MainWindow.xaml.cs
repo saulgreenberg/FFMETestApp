@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System.ComponentModel;
+using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -39,6 +40,7 @@ public partial class MainWindow : Window
     private bool _isCleaningUp = false;
     private bool _useHardwareAccel = false;
     private bool _hwDecodeChecked = false;
+    private string _audioCodecName = "N/A";
 
     // Dual-buffer: tracks which MediaElement is currently the visible/active one.
     // true = VideoPlayer is active; false = VideoPlayer2 is active.
@@ -78,6 +80,11 @@ public partial class MainWindow : Window
 
         SetupEventHandlers();
         UpdateStatus("Application initialized. Ready to load video.");
+
+        var ffmeVersion = typeof(Unosquare.FFME.MediaElement).Assembly
+            .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion ?? "unknown";
+        FfmeVersionText.Text = $"FFME: {ffmeVersion}";
     }
 
     // Wire up event handlers and configure both media players.
@@ -96,12 +103,13 @@ public partial class MainWindow : Window
         GridVideoPanel.MouseLeftButtonUp += VideoPlayer_MouseLeftButtonUp;
 
         // See https://github.com/unosquare/ffmediaelement/issues/683#issuecomment-4276582110
-        // UseLegacyAudioOut prevents a DirectSound COM RCW crash on rapid open/close cycles.
-        VideoPlayer.RendererOptions.UseLegacyAudioOut = true;
+        // Default to DirectSound; UseLegacyAudioOut (WinMM) is available via the checkbox
+        // to repro the DirectSound RCW crash on rapid open/close cycles (github.com/unosquare/ffmediaelement/issues/683).
+        VideoPlayer.RendererOptions.UseLegacyAudioOut = false;
         VideoPlayer.MediaFailed += VideoPlayer_MediaFailed;
         VideoPlayer.MediaOpening += VideoPlayer_MediaOpening;
 
-        VideoPlayer2.RendererOptions.UseLegacyAudioOut = true;
+        VideoPlayer2.RendererOptions.UseLegacyAudioOut = false;
         VideoPlayer2.MediaFailed += VideoPlayer_MediaFailed;
         VideoPlayer2.MediaOpening += VideoPlayer_MediaOpening;
 
@@ -334,7 +342,6 @@ public partial class MainWindow : Window
                 }
                 PositionSlider.Value = 0;
                 PositionText.Text = "00:00:00 / 00:00:00";
-                FileNameText.Text = IOPath.GetFileName(filePath);
                 UpdateStatus($"Loaded: {IOPath.GetFileName(filePath)}");
                 UpdatePlayPauseIcon(false);
             }
@@ -468,6 +475,9 @@ public partial class MainWindow : Window
                 _videoFrameRate = videoStream.FPS;
             }
             FrameRateText.Text = $"FPS: {_videoFrameRate:F2}";
+            var audioStream = e.Info?.Streams?.Values.FirstOrDefault(s => s.PixelWidth == 0 && !string.IsNullOrEmpty(s.CodecName));
+            _audioCodecName = audioStream?.CodecName ?? "N/A";
+            UpdateAudioEngineText();
             // VideoHardwareDecoder is only populated after the first frame decodes, not at open time.
             // Reset the flag so PositionChanged will pick it up on the first frame.
             _hwDecodeChecked = false;
@@ -958,6 +968,31 @@ public partial class MainWindow : Window
     }
     #endregion
 
+    #region Video Controls - Audio engine (DirectSound vs WinMM)
+    // UseLegacyAudioOut is read when the audio renderer is instantiated during Open(),
+    // so a reload is required for the change to take effect.
+    private async void UseDirectSoundCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (VideoPlayer == null) return;
+        bool useDirectSound = UseDirectSoundCheckBox.IsChecked == true;
+        VideoPlayer.RendererOptions.UseLegacyAudioOut = !useDirectSound;
+        VideoPlayer2.RendererOptions.UseLegacyAudioOut = !useDirectSound;
+        UpdateAudioEngineText();
+        if (ActivePlayer.Source != null)
+        {
+            string current = ActivePlayer.Source.LocalPath;
+            await LoadVideo(current, silent: true);
+            await ActivePlayer.Play();
+        }
+    }
+
+    private void UpdateAudioEngineText()
+    {
+        string engine = UseDirectSoundCheckBox.IsChecked == true ? "DirectSound" : "WinMM";
+        AudioEngineText.Text = $"Audio: {_audioCodecName} | {engine}";
+    }
+    #endregion
+
     #region Dual buffering
     // Dual-buffer swap: preload the next video in the hidden back player, play it, then
     // instantly make it visible and hide the old active player. Eliminates the blank flash.
@@ -999,7 +1034,6 @@ public partial class MainWindow : Window
         previousActive.Visibility = Visibility.Hidden;
         _ = CleanupPlayer(previousActive);
 
-        FileNameText.Text = IOPath.GetFileName(filePath);
         UpdateStatus($"Loaded: {IOPath.GetFileName(filePath)}");
         UpdatePlayPauseIcon(true);
         PositionSlider.Value = 0;
