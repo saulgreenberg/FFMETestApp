@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FFMETestApp": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

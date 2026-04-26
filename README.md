@@ -16,10 +16,18 @@ Download from https://dotnet.microsoft.com/download/dotnet/10.0 (x64 Windows).
 
 | Package | Version |
 |---------|---------|
-| `zgabi.FFME.Windows` | 7.0.361-beta.2 |
-| `FFmpeg.AutoGen` | 8.0.0 |
+| `Sinaxxr.FFME.Windows` | 8.0.361-sinaxxr.1 |
+| `FFmpeg.AutoGen` | 8.0.0.1 |
 
 These are declared in `FFMETestApp.csproj` and restored by `dotnet restore` or Visual Studio. No manual steps required.
+
+#### Why Sinaxxr.FFME.Windows
+
+FFME has been maintained by several people across forked repositories. `Sinaxxr.FFME.Windows` is currently the best available NuGet package for the following reasons:
+
+- **`FFME.Windows`** (unosquare — the original): not updated for FFmpeg 8.x; depends on `FFmpeg.AutoGen 7.0.0` and will fail to load FFmpeg 8.x DLLs at runtime.
+- **`zgabi.FFME.Windows`**: updated for FFmpeg 8.x but contains no bug fixes beyond that single change; still exhibits a known DirectSound COM RCW finalizer-thread crash on rapid video open/close cycles.
+- **`Sinaxxr.FFME.Windows`**: updated for FFmpeg 8.x (`FFmpeg.AutoGen 8.0.0.1`) and includes lifecycle stability fixes — dedicated decode/read worker threads, DirectSoundPlayer audio output improvements, and a seek-to-zero close/open workaround.
 
 ### 3. FFmpeg 8.x Windows shared DLLs
 
@@ -81,8 +89,8 @@ On startup the app searches upward from the executable directory for a folder na
 
 ## Licence notes
 
-`zgabi.FFME.Windows` is MIT-licensed.
-`FFmpeg.AutoGen` is LGPL. 
+`Sinaxxr.FFME.Windows` is MIT-licensed (fork of the original unosquare FFME project).
+`FFmpeg.AutoGen` is LGPL.
 The FFmpeg shared libraries themselves are LGPL (when using the `lgpl` build) or GPL (when using the `gpl` build) — check the terms for your use case.
 
 # Details and what this program illustrates

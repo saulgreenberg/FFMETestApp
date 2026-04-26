@@ -12,7 +12,8 @@ using IOPath = System.IO.Path;
 // ReSharper disable AsyncVoidEventHandlerMethod
 
 namespace FFMETestApp;
-
+// This app test FFME, a replacement media player for WPF. 
+// As described in the README file, 
 public partial class MainWindow : Window
 {
     #region Constants
@@ -711,18 +712,22 @@ public partial class MainWindow : Window
 
         try
         {
-            await StopAutoSwitchAndPlayers();
+            // On arrow key pressed, cancel autoswitching, pause the player and do the action
+            if (_autoSwitchCts != null)
+            {
+                _autoSwitchCts.Cancel();
+                AutoSwitchCheckBox.IsChecked = false;
+            }
+
+            if (ActivePlayer.IsPlaying)
+                await ActivePlayer.Pause();
 
             if (ActivePlayer.IsSeekable)
             {
                 if (e.Key == Key.Right)
-                {
                     await ActivePlayer.StepForward();
-                }
                 else
-                {
                     await ActivePlayer.StepBackward();
-                }
             }
         }
         catch

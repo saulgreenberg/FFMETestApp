@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="zgabi.FFME.Windows" Version="7.0.361-beta.2" />
-    <PackageReference Include="FFmpeg.AutoGen" Version="8.0.0" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="8.0.0.1" />
+    <PackageReference Include="Sinaxxr.FFME.Windows" Version="8.0.361-sinaxxr.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,5 +20,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <Target Name="CheckFFmpegBin" BeforeTargets="Build">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\ffmpegbin')"
+           Text="FFmpeg native DLLs are missing. Create the folder FFMETestApp\ffmpegbin\ and place these 7 files in it: avcodec-62.dll, avdevice-62.dll, avfilter-11.dll, avformat-62.dll, avutil-60.dll, swresample-6.dll, swscale-9.dll. Download from https://www.gyan.dev/ffmpeg/builds/ (ffmpeg-release-full-shared.7z) or https://github.com/BtbN/FFmpeg-Builds/releases (ffmpeg-n8.x-win64-lgpl-shared)." />
+  </Target>
 
 </Project>

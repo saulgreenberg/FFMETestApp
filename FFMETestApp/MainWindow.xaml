@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FFMETestApp"
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
         mc:Ignorable="d"
         Title="FFME Test Application - Airspace &amp; Overlay Testing" Height="700" Width="1400">
@@ -77,16 +76,19 @@
                       ToolTip="Indicates whether to use DirectSound or the legacy WinMM audio engine.&#10;Useful for testing a previous bug in DirectSound that caused crashes when switching between videos"/>
 
             <!-- Speed -->
-            <TextBlock Text="Speed:" VerticalAlignment="Center" Margin="2,0,2,0"/>
-            <RadioButton x:Name="Speed05" Content=".5x" GroupName="Speed" Margin="2,0"
+            <GroupBox Header="Speed" Margin="2,0,2,0">
+                <StackPanel Orientation="Horizontal" Margin="4,1" VerticalAlignment="Center">
+                    <RadioButton x:Name="Speed05" Content=".5x" GroupName="Speed" Margin="2,0"
                          VerticalAlignment="Center" Checked="SpeedRadioButton_Checked"
                          ToolTip="Change the video speed&#10;Illustrates how to change the speed of the running video"/>
-            <RadioButton x:Name="Speed10" Content="1x" GroupName="Speed" IsChecked="True" Margin="2,0"
+                    <RadioButton x:Name="Speed10" Content="1x" GroupName="Speed" IsChecked="True" Margin="2,0"
                          VerticalAlignment="Center" Checked="SpeedRadioButton_Checked"
                          ToolTip="Change the video speed&#10;Illustrates how to change the speed of the running video"/>
-            <RadioButton x:Name="Speed20" Content="2x" GroupName="Speed" Margin="2,0,6,0"
+                    <RadioButton x:Name="Speed20" Content="2x" GroupName="Speed" Margin="2,0,6,0"
                          VerticalAlignment="Center" Checked="SpeedRadioButton_Checked"
                          ToolTip="Change the video speed&#10;Illustrates how to change the speed of the running video"/>
+                </StackPanel>
+            </GroupBox>
 
             <!-- Auto Switch GroupBox -->
             <GroupBox Margin="3,2">
