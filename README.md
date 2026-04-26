@@ -31,11 +31,11 @@ FFME has been maintained by several people across forked repositories. `Sinaxxr.
 
 ### 3. FFmpeg 8.x Windows shared DLLs
 
-The project **does not ship** the FFmpeg binaries. You must obtain them separately and place them in `FFMETestApp\ffmpegbin\`. The build copies everything in that folder to the output directory automatically.
+The project **does ship** the FFmpeg binaries. If for some reason you want to get them yourself (e.g., if there is a later version) you must obtain them separately and place them in `FFMETestApp\ffmpegbin\`. The build copies everything in that folder to the output directory automatically.
 
-#### Which DLLs are required
+#### Which FFmpeg DLLs are required
 
-Place exactly these seven files in `FFMETestApp\ffmpegbin\`:
+These seven files must be available in `FFMETestApp\ffmpegbin\`:
 
 ```
 avcodec-62.dll
@@ -49,7 +49,7 @@ swscale-9.dll
 
 The version suffixes (`-62`, `-60`, etc.) identify the **FFmpeg 8.x** ABI. DLLs from FFmpeg 6.x or 7.x have different suffix numbers and will not load correctly.
 
-#### Where to download
+#### Where and how FFMEG was downloaded 
 
 **Option A — gyan.dev (recommended for Windows)**
 
@@ -83,7 +83,7 @@ Or open `FFMETestApp.slnx` in Visual Studio 2022 (v17.12+) and press F5.
 
 ## Video folder
 
-On startup the app searches upward from the executable directory for a folder named `Videos`. If none it asks the user. Place `.mp4`, `.avi`, `.mov`, `.wmv`, or `.mkv` files in such a folder. At least two files are needed for the auto-switch loop.
+On startup the app searches upward from the executable directory for a folder named `Videos`. Place `.mp4`, `.avi`, `.mov`, `.wmv`, or `.mkv` files in such a folder. At least two files are needed for the auto-switch loop. If the folder or videas are not present, it asks the user to locate a folder containing videos. 
 
 ---
 
